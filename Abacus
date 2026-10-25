@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kids Abacus Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f0fdf4;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      user-select: none;
+    }
+    .hud {
+      display: flex;
+      gap: 30px;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .target { color: #2563eb; }
+    .current { color: #16a34a; }
+    .frame {
+      width: 140px;
+      height: 480px;
+      border: 12px solid #78350f;
+      background: #fef3c7;
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .rod {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 8px;
+      background: #9ca3af;
+      transform: translateX(-50%);
+    }
+    .beam {
+      position: absolute;
+      top: 130px;
+      left: 0;
+      right: 0;
+      height: 14px;
+      background: #78350f;
+      z-index: 2;
+    }
+    .bead {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 44px;
+      background: #ea580c;
+      border-radius: 22px;
+      box-shadow: inset 0 2px 4px #fed7aa, inset 0 -2px 4px #9a3412, 0 4px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+      z-index: 3;
+      transition: top 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .bead.upper { background: #d97706; }
+    .reset-btn {
+      margin-top: 25px;
+      padding: 12px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hud">
+    <div class="target" id="targetText">Target: 3</div>
+    <div class="current" id="currentText">Value: 0</div>
+  </div>
+
+  <div class="frame">
+    <div class="rod"></div>
+    <div class="beam"></div>
+
+    <!-- Upper bead (Value = 5) -->
+    <div class="bead upper" id="upperBead" style="top: 15px;" onclick="toggleUpper()"></div>
+
+    <!-- 4 Lower beads (Value = 1 each) -->
+    <div class="bead" id="lower0" style="top: 300px;" onclick="clickLower(0)"></div>
+    <div class="bead" id="lower1" style="top: 348px;" onclick="clickLower(1)"></div>
+    <div class="bead" id="lower2" style="top: 396px;" onclick="clickLower(2)"></div>
+    <div class="bead" id="lower3" style="top: 444px;" onclick="clickLower(3)"></div>
+  </div>
+
+  <button class="reset-btn" onclick="resetBeads()">Reset to 0</button>
+
+  <script>
+    let upperActive = false;
+    let lowerCount = 0; // Number of lower beads moved up
+    let target = Math.floor(Math.random() * 9) + 1;
+
+    // Resting & active positions
+    const UPPER_REST = 15;
+    const UPPER_ACTIVE = 80; // touches beam at top: 130
+    const LOWER_UP = [148, 194, 240, 286];
+    const LOWER_DOWN = [300, 348, 396, 444];
+
+    function update() {
+      // Position upper bead
+      document.getElementById('upperBead').style.top = (upperActive ? UPPER_ACTIVE : UPPER_REST) + 'px';
+
+      // Position lower beads
+      for (let i = 0; i < 4; i++) {
+        const el = document.getElementById('lower' + i);
+        el.style.top = (i < lowerCount ? LOWER_UP[i] : LOWER_DOWN[i]) + 'px';
+      }
+
+      const total = (upperActive ? 5 : 0) + lowerCount;
+      document.getElementById('currentText').innerText = 'Value: ' + total;
+      document.getElementById('targetText').innerText = 'Target: ' + target;
+
+      // Check win condition
+      if (total === target) {
+        setTimeout(() => {
+          alert('Great job! You made ' + target + '!');
+          target = Math.floor(Math.random() * 9) + 1;
+          resetBeads();
+        }, 120);
+      }
+    }
+
+    function toggleUpper() {
+      upperActive = !upperActive;
+      update();
+    }
+
+    function clickLower(index) {
+      // Toggle lower bead stack
+      lowerCount = (index < lowerCount) ? index : index + 1;
+      update();
+    }
+
+    function resetBeads() {
+      upperActive = false;
+      lowerCount = 0;
+      update();
+    }
+
+    update();
+  </script>
+</body>
+</html>
